@@ -14,15 +14,53 @@ const val TAG = "FSFSFSFS"
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var flow: Flow<Int>
+    private lateinit var flow: Flow<Int>
+
+    private lateinit var flowBuilder1: Flow<Int>
+    private lateinit var flowBuilder2: Flow<Int>
+    private lateinit var flowBuilder4: Flow<Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         setupFlow()
-        setupClicks()
+        setupFlowClicks()
 
+        setupFlowBuilders()
+        setupFlowBuilderClicks()
+    }
+
+    private fun setupFlowBuilders() {
+        // way 1
+        flowBuilder1 = flowOf(4, 2, 5, 1, 7).onEach { delay(400) }.flowOn(Dispatchers.Default)
+        // way 2
+        flowBuilder2 = (1..5).asFlow().onEach { delay(300) }.flowOn(Dispatchers.Default)
+        // way 3 -->
+        /** flow{} as we used in function [setupFlow] */
+        // way 4 --> still not get the trick [misunderstand something]
+        flowBuilder4 = channelFlow {
+            (0..10).forEach {
+                send(it)
+            }
+        }.flowOn(Dispatchers.Default)
+
+    }
+
+    private fun setupFlowBuilderClicks() {
+        findViewById<Button>(R.id.flow_builder_btn).setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                flowBuilder1.collect {
+                    Log.d(TAG, "Receiving Builder 1: $it")
+                }
+                flowBuilder2.collect {
+                    Log.d(TAG, "Receiving Builder 2: $it")
+                }
+                flowBuilder4.collect {
+                    Log.d(TAG, "Receiving Builder 4: $it")
+                }
+            }
+        }
     }
 
     private fun setupFlow() {
@@ -40,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             .flowOn(Dispatchers.Main)
     }
 
-    private fun setupClicks() {
+    private fun setupFlowClicks() {
         findViewById<Button>(R.id.button).setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
                 flow.collect {
@@ -63,6 +101,7 @@ class MainActivity : AppCompatActivity() {
 
 // Flow will not executed till we collect it. means --> we must call flow.collect to receive the streamed values ;)
 // Anything, written above flowOn will run in background thread.
+// flowOn() is like subscribeOn() in RxJava
 
 /// reference
 /// https://blog.mindorks.com/what-is-flow-in-kotlin-and-how-to-use-it-in-android-project
