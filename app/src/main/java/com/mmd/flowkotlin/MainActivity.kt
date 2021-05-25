@@ -20,6 +20,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var flowBuilder2: Flow<Int>
     private lateinit var flowBuilder4: Flow<Int>
 
+    private lateinit var flowOne: Flow<String>
+    private lateinit var flowTwo: Flow<String>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -29,6 +32,34 @@ class MainActivity : AppCompatActivity() {
 
         setupFlowBuilders()
         setupFlowBuilderClicks()
+
+        setupFlowOperators()
+        setupFlowOperatorsClicks()
+    }
+
+    private fun setupFlow() {
+        flow = flow {
+            Log.d(TAG, "Start flow")
+            (0..10).forEach {
+                // Emit items with 500 milliseconds delay
+                delay(500)
+                Log.d(TAG, "Emitting $it")
+                emit(it)
+
+            }
+        }
+            .map { it * it }
+            .flowOn(Dispatchers.Main)
+    }
+
+    private fun setupFlowClicks() {
+        findViewById<Button>(R.id.button).setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                flow.collect {
+                    Log.d(TAG, "Receiving $it")
+                }
+            }
+        }
     }
 
     private fun setupFlowBuilders() {
@@ -63,26 +94,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupFlow() {
-        flow = flow {
-            Log.d(TAG, "Start flow")
-            (0..10).forEach {
-                // Emit items with 500 milliseconds delay
-                delay(500)
-                Log.d(TAG, "Emitting $it")
-                emit(it)
-
-            }
-        }
-            .map { it * it }
-            .flowOn(Dispatchers.Main)
+    private fun setupFlowOperators() {
+        flowOne = flowOf("Himanshu", "Amit", "Janishar").flowOn(Dispatchers.Default)
+        flowTwo = flowOf("Singh", "Shekhar", "Ali").flowOn(Dispatchers.Default)
     }
 
-    private fun setupFlowClicks() {
-        findViewById<Button>(R.id.button).setOnClickListener {
+    private fun setupFlowOperatorsClicks() {
+        // Consider if both flows doesn't have the same number of item, then the flow will stop as soon as one of the flow completes.
+        findViewById<Button>(R.id.flow_operator_btn).setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
-                flow.collect {
-                    Log.d(TAG, "Receiving $it")
+                flowOne.zip(flowTwo) { firstString, secondString ->
+                    "$firstString, $secondString"
+                }.collect {
+                    Log.d(TAG, "Zipping $it")
                 }
             }
         }

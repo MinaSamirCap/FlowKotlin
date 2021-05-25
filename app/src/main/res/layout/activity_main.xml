@@ -25,5 +25,14 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button" />
 
+    <Button
+        android:id="@+id/flow_operator_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Launch Flow Operator"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/flow_builder_btn" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
