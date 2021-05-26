@@ -7,10 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 const val TAG = "FSFSFSFS"
@@ -38,7 +35,9 @@ class MainActivity : AppCompatActivity() {
                 emit(it)
 
             }
-        }.flowOn(Dispatchers.Main)
+        }
+            .map { it * it }
+            .flowOn(Dispatchers.Main)
     }
 
     private fun setupClicks() {
@@ -62,7 +61,8 @@ class MainActivity : AppCompatActivity() {
  * Few examples using Flow Operators.
  **/
 
-// flow will not executed till we collect it. means --> we must call flow.collect to receive the streamed values ;)
+// Flow will not executed till we collect it. means --> we must call flow.collect to receive the streamed values ;)
+// Anything, written above flowOn will run in background thread.
 
 /// reference
 /// https://blog.mindorks.com/what-is-flow-in-kotlin-and-how-to-use-it-in-android-project
